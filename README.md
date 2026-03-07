@@ -12,13 +12,13 @@ Proxy-based state management for React.
 ## Install
 
 ```bash
-npm install mustrd
+npm install @mustrd/react
 ```
 
 ## Quick Start
 
 ```tsx
-import { useMustard } from 'mustrd';
+import { useMustard } from '@mustrd/react';
 
 function Counter() {
     const state = useMustard({ count: 0 });
@@ -31,7 +31,7 @@ Only components that **read** `count` will re-render when it changes.
 ## Shared Store
 
 ```tsx
-import { createMustard, useMustard } from 'mustrd';
+import { createMustard, useMustard } from '@mustrd/react';
 
 // Create outside component (shared across components)
 const store = createMustard({ name: '', count: 0 });
@@ -59,7 +59,7 @@ function Controls() {
 Track which fields changed — useful for sending only modified fields to the backend.
 
 ```tsx
-import { useMustard, record } from 'mustrd';
+import { useMustard, record } from '@mustrd/react';
 
 function EditForm() {
     const state = useMustard(store);
@@ -155,7 +155,7 @@ record(state).paths();
 ## Global Store (Provider)
 
 ```tsx
-import { createMustard, MustardProvider, useStore, useStores } from 'mustrd';
+import { createMustard, MustardProvider, useStore, useStores } from '@mustrd/react';
 
 const stores = {
     user: createMustard({ name: '', role: 'guest' }),
@@ -186,7 +186,7 @@ function Debug() {
 ## Utilities
 
 ```ts
-import { unwrap, squeeze } from 'mustrd';
+import { unwrap, squeeze } from '@mustrd/react';
 
 // Get raw value from proxy
 const raw = unwrap(state);
