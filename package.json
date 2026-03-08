@@ -1,6 +1,6 @@
 {
   "name": "@mustrd/react",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Proxy-based state management for React — direct assignment, auto-tracking, record diff, undo",
   "type": "module",
   "main": "./dist/index.cjs",
@@ -36,6 +36,11 @@
     "record",
     "diff"
   ],
+  "homepage": "https://wilsonbeta.github.io/mustard/",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/wilsonbeta/mustard.git"
+  },
   "author": "Wilson",
   "license": "MIT",
   "peerDependencies": {
