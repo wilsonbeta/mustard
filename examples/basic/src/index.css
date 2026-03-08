@@ -93,8 +93,33 @@ body {
 .sidebar-nav {
     display: flex;
     flex-direction: column;
-    gap: 2px;
+    gap: 6px;
     flex: 1;
+    position: relative;
+}
+
+.nav-indicator {
+    position: absolute;
+    left: 0;
+    right: 0;
+    background: var(--accent-subtle);
+    border-radius: var(--radius-sm);
+    box-shadow: 0 0 0 3px var(--accent-subtle);
+    transition: transform 0.6s cubic-bezier(0.16, 1, 0.3, 1), height 0.4s ease;
+    pointer-events: none;
+    z-index: 0;
+}
+
+.nav-indicator::after {
+    content: '';
+    position: absolute;
+    right: -1px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 3px;
+    height: 55%;
+    background: var(--accent);
+    border-radius: 3px;
 }
 
 .nav-item {
@@ -104,7 +129,7 @@ body {
     padding: 0.55rem 0.65rem;
     border-radius: var(--radius-sm);
     cursor: pointer;
-    transition: all 0.15s;
+    transition: color 0.2s, background-color 0.25s, box-shadow 0.25s;
     color: var(--text-secondary);
     font-size: 0.88rem;
     user-select: none;
@@ -113,23 +138,31 @@ body {
     width: 100%;
     text-align: left;
     font-family: inherit;
+    position: relative;
+    z-index: 1;
 }
 
 .nav-item:hover {
-    background: var(--bg-hover);
     color: var(--text-primary);
+    background-color: rgba(255, 255, 255, 0.05);
+    box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.05);
 }
 
 .nav-item.active {
-    background: var(--accent-subtle);
     color: var(--accent);
     font-weight: 500;
 }
 
+.nav-item.active:hover {
+    background-color: transparent;
+    box-shadow: none;
+}
+
 .nav-item .nav-icon {
     width: 20px;
-    text-align: center;
-    font-size: 0.85rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
     flex-shrink: 0;
 }
 
@@ -170,36 +203,41 @@ body {
     padding: 2.5rem 2rem;
 }
 
-/* ==================== Page Transition ==================== */
+/* ==================== Page Transition (card-level stagger) ==================== */
 
-.page-enter {
-    animation: pageIn var(--transition-page) forwards;
-}
-
-.page-exit {
-    animation: pageOut var(--transition-page) forwards;
-}
-
-@keyframes pageIn {
+@keyframes cardIn {
     from {
         opacity: 0;
-        transform: translateX(20px);
+        transform: translateY(28px) scale(0.95);
+        filter: blur(4px);
     }
     to {
         opacity: 1;
-        transform: translateX(0);
+        transform: translateY(0) scale(1);
+        filter: blur(0);
     }
 }
 
-@keyframes pageOut {
+@keyframes cardOut {
     from {
         opacity: 1;
-        transform: translateX(0);
+        transform: translateY(0) scale(1);
     }
     to {
         opacity: 0;
-        transform: translateX(-20px);
+        transform: translateY(-14px) scale(0.97);
     }
+}
+
+/* Stagger children: use --i CSS var for index */
+.page-enter .motion {
+    animation: cardIn 0.5s cubic-bezier(0.16, 1, 0.3, 1) both;
+    animation-delay: calc(var(--i, 0) * 0.07s);
+}
+
+.page-exit .motion {
+    animation: cardOut 0.18s cubic-bezier(0.4, 0, 1, 1) both;
+    animation-delay: calc(var(--i, 0) * 0.025s);
 }
 
 /* ==================== Page Header ==================== */
@@ -241,11 +279,13 @@ body {
     border: 1px solid var(--border);
     border-radius: var(--radius-lg);
     padding: 1.5rem;
-    transition: border-color 0.2s;
+    transition: border-color 0.25s, transform 0.25s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.25s;
 }
 
 .demo:hover {
     border-color: rgba(255, 255, 255, 0.12);
+    transform: translateY(-2px);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
 }
 
 .demo h2 {
@@ -310,7 +350,7 @@ button.danger:hover {
     background: rgba(231, 76, 60, 0.12);
 }
 
-input {
+input, select {
     border-radius: var(--radius-sm);
     border: 1px solid var(--border);
     padding: 0.45em 0.8em;
@@ -323,8 +363,17 @@ input {
     transition: border-color 0.15s;
 }
 
-input:focus {
+input:focus, select:focus {
     border-color: var(--accent);
+}
+
+select {
+    cursor: pointer;
+}
+
+select:disabled {
+    opacity: 0.4;
+    cursor: default;
 }
 
 .row {
@@ -357,17 +406,17 @@ input:focus {
 /* ==================== Code Block ==================== */
 
 .code {
-    background: rgba(0, 0, 0, 0.35);
+    background: rgba(0, 0, 0, 0.35) !important;
     border-radius: var(--radius-md);
     padding: 0.75rem 1rem;
-    font-family: 'SF Mono', 'Fira Code', monospace;
+    font-family: 'SF Mono', 'Fira Code', 'JetBrains Mono', 'Cascadia Code', 'Consolas', monospace !important;
     font-size: 0.78rem;
-    white-space: pre-wrap;
-    word-break: break-all;
+    white-space: pre;
+    overflow-x: auto;
+    overflow-y: auto;
     color: rgba(255, 255, 255, 0.6);
     margin-top: 0.75rem;
-    max-height: 130px;
-    overflow-y: auto;
+    max-height: 160px;
     line-height: 1.6;
 }
 
@@ -587,6 +636,27 @@ table input[type="checkbox"] {
     margin-bottom: 0.75rem;
 }
 
+.doc-section code {
+    font-family: 'SF Mono', 'Fira Code', 'JetBrains Mono', 'Cascadia Code', 'Consolas', monospace;
+    font-size: 0.82em;
+    background: rgba(212, 160, 23, 0.1);
+    color: var(--accent);
+    padding: 0.15em 0.4em;
+    border-radius: 3px;
+}
+
+.api-table {
+    margin: 0.75rem 0;
+}
+
+.api-table table {
+    font-size: 0.82rem;
+}
+
+.api-table td code {
+    white-space: nowrap;
+}
+
 .install-block {
     display: flex;
     align-items: center;
@@ -594,7 +664,7 @@ table input[type="checkbox"] {
     background: rgba(0, 0, 0, 0.35);
     border-radius: var(--radius-md);
     padding: 0.85rem 1.25rem;
-    font-family: 'SF Mono', 'Fira Code', monospace;
+    font-family: 'SF Mono', 'Fira Code', 'JetBrains Mono', 'Cascadia Code', 'Consolas', monospace;
     font-size: 0.88rem;
     color: var(--accent);
     margin-bottom: 0.75rem;
@@ -618,6 +688,13 @@ table input[type="checkbox"] {
     border: 1px solid var(--border);
     border-radius: var(--radius-md);
     padding: 1rem;
+    transition: border-color 0.25s, transform 0.25s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.25s;
+}
+
+.feature-card:hover {
+    border-color: rgba(255, 255, 255, 0.12);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
 }
 
 .feature-card .feature-title {

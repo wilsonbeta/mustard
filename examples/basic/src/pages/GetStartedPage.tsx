@@ -1,12 +1,14 @@
+import { CodeBlock } from '../components/CodeBlock'
+
 export function GetStartedPage() {
     return (
         <>
-            <div className="page-header">
+            <div className="page-header motion" style={{ '--i': 0 } as any}>
                 <h1>Get <span className="accent">Started</span></h1>
                 <p>Up and running in under a minute</p>
             </div>
 
-            <section className="doc-section">
+            <section className="doc-section motion" style={{ '--i': 1 } as any}>
                 <h2>Install</h2>
                 <div className="install-block">
                     <span className="prompt">$</span>
@@ -14,10 +16,10 @@ export function GetStartedPage() {
                 </div>
             </section>
 
-            <section className="doc-section">
+            <section className="doc-section motion" style={{ '--i': 2 } as any}>
                 <h2>Quick Example</h2>
                 <p>No boilerplate, no actions, no reducers. Just assign values like normal JavaScript.</p>
-                <div className="code">{`import { useMustard } from '@mustrd/react'
+                <CodeBlock code={`import { useMustard } from '@mustrd/react'
 
 function Counter() {
     const state = useMustard({ count: 0 })
@@ -27,13 +29,13 @@ function Counter() {
             {state.count}
         </button>
     )
-}`}</div>
+}`} />
             </section>
 
-            <section className="doc-section">
+            <section className="doc-section motion" style={{ '--i': 3 } as any}>
                 <h2>Shared Store</h2>
                 <p>Create a store outside the component to share state across your app.</p>
-                <div className="code">{`import { createMustard, useMustard } from '@mustrd/react'
+                <CodeBlock code={`import { createMustard, useMustard } from '@mustrd/react'
 
 // Shared store — lives outside React
 const store = createMustard({ user: '', count: 0 })
@@ -49,13 +51,13 @@ function Controls() {
 }
 
 // Only Display re-renders when count changes
-// Components that don't read count are unaffected`}</div>
+// Components that don't read count are unaffected`} />
             </section>
 
-            <section className="doc-section">
+            <section className="doc-section motion" style={{ '--i': 4 } as any}>
                 <h2>Record (Diff Tracking)</h2>
                 <p>Track which fields changed — perfect for PATCH requests that only send modified data.</p>
-                <div className="code">{`import { useMustard, record } from '@mustrd/react'
+                <CodeBlock code={`import { useMustard, record } from '@mustrd/react'
 
 const store = createMustard({
     name: 'Wilson',
@@ -77,13 +79,13 @@ function EditForm() {
 
         record(state).clear() // new baseline
     }
-}`}</div>
+}`} />
             </section>
 
-            <section className="doc-section">
+            <section className="doc-section motion" style={{ '--i': 5 } as any}>
                 <h2>Undo</h2>
                 <p>Every change is recorded. Step back through history or jump to any point.</p>
-                <div className="code">{`import { useMustard, record } from '@mustrd/react'
+                <CodeBlock code={`import { useMustard, record } from '@mustrd/react'
 
 const state = useMustard({ color: '#e2b714', size: 60 })
 
@@ -94,10 +96,10 @@ record(state).undo()      // size → 60
 record(state).undo()      // color → '#e2b714'
 
 // After undo, new changes start a new timeline
-state.size = 80           // history: [0] ← fresh branch`}</div>
+state.size = 80           // history: [0] ← fresh branch`} />
             </section>
 
-            <section className="doc-section">
+            <section className="doc-section motion" style={{ '--i': 6 } as any}>
                 <h2>Why Mustard?</h2>
                 <div className="feature-grid">
                     <div className="feature-card">
@@ -127,9 +129,9 @@ state.size = 80           // history: [0] ← fresh branch`}</div>
                 </div>
             </section>
 
-            <section className="doc-section">
+            <section className="doc-section motion" style={{ '--i': 7 } as any}>
                 <h2>Comparison</h2>
-                <div className="code">{`// Mustard — just JavaScript
+                <CodeBlock code={`// Mustard — just JavaScript
 state.rows.forEach(row => row.selected = true)
 
 // Redux
@@ -138,7 +140,7 @@ dispatch(setRows(rows.map(r => ({ ...r, selected: true }))))
 // Zustand
 set(prev => ({
     rows: prev.rows.map(r => ({ ...r, selected: true }))
-}))`}</div>
+}))`} />
             </section>
         </>
     )

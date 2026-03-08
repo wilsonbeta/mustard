@@ -1,13 +1,14 @@
 import { useMustard } from '@mustrd/react'
 import { useRef } from 'react'
+import { CodeBlock } from '../components/CodeBlock'
 
-export function Counter() {
+export function Counter({ mi = 0 }: { mi?: number }) {
     const state = useMustard({ count: 0 })
     const renders = useRef(0)
     renders.current++
 
     return (
-        <div className="demo">
+        <div className="demo motion" style={{ '--i': mi } as any}>
             <div className="row-between">
                 <h2>Counter</h2>
                 <span className="badge">renders: {renders.current}</span>
@@ -19,9 +20,9 @@ export function Counter() {
                 <button onClick={() => state.count = 0}>Reset</button>
                 <button onClick={() => state.count++}>+</button>
             </div>
-            <div className="code">
-                {`// Just assign directly\nstate.count++\nstate.count = 0`}
-            </div>
+            <CodeBlock code={`// Just assign directly
+state.count++
+state.count = 0`} />
         </div>
     )
 }

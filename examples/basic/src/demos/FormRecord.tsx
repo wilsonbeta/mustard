@@ -1,5 +1,6 @@
 import { createMustard, useMustard, record } from '@mustrd/react'
 import { useState } from 'react'
+import { CodeBlock } from '../components/CodeBlock'
 
 const store = createMustard({
     name: 'Wilson',
@@ -7,7 +8,7 @@ const store = createMustard({
     role: 'engineer',
 })
 
-export function FormRecord() {
+export function FormRecord({ mi = 0 }: { mi?: number }) {
     const state = useMustard(store)
     const [saved, setSaved] = useState(false)
 
@@ -16,14 +17,13 @@ export function FormRecord() {
     const hasChanges = record(state).size() > 0
 
     const handleSave = () => {
-        // In real app: await fetch('/api/user', { method: 'PATCH', body: JSON.stringify(diff) })
         record(state).clear()
         setSaved(true)
         setTimeout(() => setSaved(false), 1500)
     }
 
     return (
-        <div className="demo">
+        <div className="demo motion" style={{ '--i': mi } as any}>
             <div className="row-between">
                 <h2>Form + Record</h2>
                 {hasChanges && <span className="badge">{record(state).size()} changes</span>}
@@ -59,15 +59,10 @@ export function FormRecord() {
                 )}
             </div>
             {hasChanges && (
-                <div className="code">
-                    <div style={{ color: 'rgba(255,255,255,0.4)', marginBottom: '0.25rem' }}>
-                        // PATCH body (only changed fields)
-                    </div>
-                    {JSON.stringify(diff, null, 2)}
-                    <div style={{ color: 'rgba(255,255,255,0.4)', marginTop: '0.5rem' }}>
-                        // paths: {JSON.stringify(paths)}
-                    </div>
-                </div>
+                <CodeBlock language="json" code={`// PATCH body (only changed fields)
+${JSON.stringify(diff, null, 2)}
+
+// paths: ${JSON.stringify(paths)}`} />
             )}
         </div>
     )

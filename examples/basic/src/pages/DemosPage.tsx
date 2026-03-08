@@ -2,21 +2,25 @@ import { Counter } from '../demos/Counter'
 import { TodoList } from '../demos/TodoList'
 import { FormRecord } from '../demos/FormRecord'
 import { UndoDemo } from '../demos/UndoDemo'
+import { CascadingSelect } from '../demos/CascadingSelect'
+import { LiveSearch } from '../demos/LiveSearch'
 import { SelectTable } from '../demos/SelectTable'
 
 export function DemosPage() {
     return (
         <>
-            <div className="page-header">
+            <div className="page-header motion" style={{ '--i': 0 } as any}>
                 <h1><span className="accent">Mustard</span> Demos</h1>
                 <p>Interactive examples — every demo uses @mustrd/react for state management</p>
             </div>
             <div className="demo-grid">
-                <Counter />
-                <TodoList />
-                <FormRecord />
-                <UndoDemo />
-                <SelectTable />
+                <Counter mi={1} />
+                <TodoList mi={2} />
+                <FormRecord mi={3} />
+                <UndoDemo mi={4} />
+                <CascadingSelect mi={5} />
+                <LiveSearch mi={6} />
+                <SelectTable mi={7} />
             </div>
         </>
     )

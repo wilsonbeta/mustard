@@ -1,5 +1,6 @@
 import { useMustard } from '@mustrd/react'
 import { useState } from 'react'
+import { CodeBlock } from '../components/CodeBlock'
 
 interface Todo {
     id: number;
@@ -7,7 +8,7 @@ interface Todo {
     done: boolean;
 }
 
-export function TodoList() {
+export function TodoList({ mi = 0 }: { mi?: number }) {
     const state = useMustard<{ todos: Todo[], nextId: number }>({
         todos: [
             { id: 1, text: 'Try Mustard', done: true },
@@ -25,7 +26,7 @@ export function TodoList() {
     }
 
     return (
-        <div className="demo">
+        <div className="demo motion" style={{ '--i': mi } as any}>
             <h2>Todo List</h2>
             <p className="desc">Array methods — push, splice, direct item mutation</p>
             <div className="row" style={{ marginBottom: '0.75rem' }}>
@@ -60,9 +61,10 @@ export function TodoList() {
                     </p>
                 )}
             </div>
-            <div className="code">
-                {`// Push, mutate, splice\nstate.todos.push({ id: 3, text: 'New' })\nstate.todos[0].done = true\nstate.todos.splice(i, 1)`}
-            </div>
+            <CodeBlock code={`// Push, mutate, splice
+state.todos.push({ id: 3, text: 'New' })
+state.todos[0].done = true
+state.todos.splice(i, 1)`} />
         </div>
     )
 }

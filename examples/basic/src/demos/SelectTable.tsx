@@ -1,4 +1,5 @@
 import { useMustard } from '@mustrd/react'
+import { CodeBlock } from '../components/CodeBlock'
 
 interface Row {
     id: number;
@@ -22,7 +23,7 @@ const STATUS_COLOR: Record<string, string> = {
     Offline: '#e74c3c',
 }
 
-export function SelectTable() {
+export function SelectTable({ mi = 0 }: { mi?: number }) {
     const state = useMustard({ rows: INITIAL_DATA })
 
     const selectedCount = state.rows.filter((r: Row) => r.selected).length
@@ -40,7 +41,7 @@ export function SelectTable() {
     }
 
     return (
-        <div className="demo" style={{ gridColumn: '1 / -1' }}>
+        <div className="demo motion" style={{ gridColumn: '1 / -1', '--i': mi } as any}>
             <div className="row-between">
                 <h2>Selectable Table</h2>
                 {selectedCount > 0 && (
@@ -102,8 +103,7 @@ export function SelectTable() {
                     </tbody>
                 </table>
             </div>
-            <div className="code">
-{`// Select all — one line, no spread, no map
+            <CodeBlock code={`// Select all — one line, no spread, no map
 state.rows.forEach(row => {
     row.selected = checked
 })
@@ -111,8 +111,7 @@ state.rows.forEach(row => {
 // Compare with Redux / Zustand:
 // setState(prev => ({
 //     rows: prev.rows.map(r => ({ ...r, selected: checked }))
-// }))`}
-            </div>
+// }))`} />
         </div>
     )
 }

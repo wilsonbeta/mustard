@@ -1,8 +1,9 @@
 import { useMustard, record } from '@mustrd/react'
+import { CodeBlock } from '../components/CodeBlock'
 
 const COLORS = ['#e74c3c', '#e2b714', '#2ecc71', '#3498db', '#9b59b6', '#e67e22', '#1abc9c']
 
-export function UndoDemo() {
+export function UndoDemo({ mi = 0 }: { mi?: number }) {
     const state = useMustard({
         color: '#e2b714',
         size: 60,
@@ -24,7 +25,7 @@ export function UndoDemo() {
     }
 
     return (
-        <div className="demo">
+        <div className="demo motion" style={{ '--i': mi } as any}>
             <div className="row-between">
                 <h2>Undo</h2>
                 <span className="badge">history: {historySize}</span>
@@ -75,9 +76,14 @@ export function UndoDemo() {
                     ))}
                 </div>
             )}
-            <div className="code">
-                {`// Undo last change\nrecord(state).undo()\n\n// Jump to step 2\nrecord(state).undoTo(2)\n\n// Reset everything\nrecord(state).undoAll()`}
-            </div>
+            <CodeBlock code={`// Undo last change
+record(state).undo()
+
+// Jump to step 2
+record(state).undoTo(2)
+
+// Reset everything
+record(state).undoAll()`} />
         </div>
     )
 }
