@@ -64,7 +64,7 @@ import { useMustard, record } from '@mustrd/react';
 function EditForm() {
     const state = useMustard(store);
 
-    const handleSave = () => {
+    const handleSave = async () => {
         const diff = record(state).data();
         // { name: 'bar' } — only changed fields, nested
         await fetch('/api/user', {
