@@ -262,6 +262,12 @@ body {
     font-size: 0.9rem;
 }
 
+.page-header .hero-tagline {
+    font-size: 1rem;
+    line-height: 1.7;
+    color: var(--text-secondary);
+}
+
 /* ==================== Demo Grid ==================== */
 
 .demo-grid {

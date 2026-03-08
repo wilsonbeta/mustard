@@ -10,8 +10,8 @@ export function DemosPage() {
     return (
         <>
             <div className="page-header motion" style={{ '--i': 0 } as any}>
-                <h1><span className="accent">Mustard</span> Demos</h1>
-                <p>Interactive examples — every demo uses @mustrd/react for state management</p>
+                <h1><span className="accent">Mustard</span></h1>
+                <p className="hero-tagline">Proxy-based state management for React.<br/>Direct assignment, auto-tracking, record diff, undo — zero dependencies.</p>
             </div>
             <div className="demo-grid">
                 <Counter mi={1} />
