@@ -120,6 +120,18 @@ export default function App() {
                     {page === 'api' && <ApiPage />}
                 </div>
             </main>
+            <nav className="mobile-nav">
+                {PAGES.map(p => (
+                    <button
+                        key={p.key}
+                        className={activeNav === p.key ? 'active' : ''}
+                        onClick={() => navigate(p.key)}
+                    >
+                        {p.icon}
+                        <span>{p.label}</span>
+                    </button>
+                ))}
+            </nav>
         </div>
     )
 }
