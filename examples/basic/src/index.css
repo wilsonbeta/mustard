@@ -194,6 +194,7 @@ body {
     flex: 1;
     margin-left: var(--sidebar-width);
     min-height: 100vh;
+    min-width: 0;
 }
 
 .page-container {
@@ -285,6 +286,7 @@ body {
     border: 1px solid var(--border);
     border-radius: var(--radius-lg);
     padding: 1.5rem;
+    overflow: hidden;
     transition: border-color 0.25s, transform 0.25s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.25s;
 }
 
@@ -732,7 +734,8 @@ table input[type="checkbox"] {
         padding-bottom: 4.5rem;
     }
     .page-container {
-        padding: 1.5rem 1rem;
+        padding: 1.5rem 0.75rem;
+        overflow-x: hidden;
     }
     .page-header h1 {
         font-size: 1.4rem;
