@@ -1,5 +1,7 @@
 # Mustard
 
+[![CI](https://github.com/wilsonbeta/mustard/actions/workflows/ci.yml/badge.svg)](https://github.com/wilsonbeta/mustard/actions/workflows/ci.yml)
+
 Proxy-based state management for React.
 
 - **Direct assignment** — no setter functions, just `state.name = 'foo'`
