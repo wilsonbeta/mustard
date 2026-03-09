@@ -3,7 +3,7 @@ import { CodeBlock } from '../components/CodeBlock'
 
 const COLORS = ['#e74c3c', '#e2b714', '#2ecc71', '#3498db', '#9b59b6', '#e67e22', '#1abc9c']
 
-export function UndoDemo({ mi = 0 }: { mi?: number }) {
+export function UndoDemo({ mi = 0, expand }: { mi?: number, expand?: React.ReactNode }) {
     const state = useMustard({
         color: '#e2b714',
         size: 60,
@@ -84,6 +84,7 @@ record(state).undoTo(2)
 
 // Reset everything
 record(state).undoAll()`} />
+            {expand}
         </div>
     )
 }

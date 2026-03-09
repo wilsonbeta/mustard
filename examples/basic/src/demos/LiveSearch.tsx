@@ -64,7 +64,7 @@ function ResultList() {
     )
 }
 
-export function LiveSearch({ mi = 0 }: { mi?: number }) {
+export function LiveSearch({ mi = 0, expand }: { mi?: number, expand?: React.ReactNode }) {
     return (
         <div className="demo motion" style={{ '--i': mi } as any}>
             <h2>Live Search</h2>
@@ -80,6 +80,7 @@ state.query = e.target.value
 // Component B reads (auto-tracks)
 const filtered = ITEMS.filter(...)
 // Only ResultList re-renders on query change`} />
+            {expand}
         </div>
     )
 }

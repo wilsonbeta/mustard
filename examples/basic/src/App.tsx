@@ -1,4 +1,5 @@
 import { useState, useRef, useCallback, useLayoutEffect } from 'react'
+import { SideModalProvider } from './components/SideModal'
 import { DemosPage } from './pages/DemosPage'
 import { GetStartedPage } from './pages/GetStartedPage'
 import { ApiPage } from './pages/ApiPage'
@@ -70,11 +71,16 @@ export default function App() {
         setTimeout(() => {
             setPage(target)
             setAnimClass('page-enter')
+            // scroll container is .side-modal-body (absolute wrapper)
+            const body = document.querySelector('.side-modal-body')
+            if (body) body.scrollTop = 0
+            window.scrollTo(0, 0)
             setTimeout(() => { isTransitioning.current = false }, 400)
         }, EXIT_MS)
     }, [page])
 
     return (
+        <SideModalProvider>
         <div className="app-layout">
             <aside className="sidebar">
                 <div className="sidebar-logo">
@@ -133,5 +139,6 @@ export default function App() {
                 ))}
             </nav>
         </div>
+        </SideModalProvider>
     )
 }

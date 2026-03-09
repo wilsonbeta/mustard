@@ -8,7 +8,7 @@ const store = createMustard({
     role: 'engineer',
 })
 
-export function FormRecord({ mi = 0 }: { mi?: number }) {
+export function FormRecord({ mi = 0, expand }: { mi?: number, expand?: React.ReactNode }) {
     const state = useMustard(store)
     const [saved, setSaved] = useState(false)
 
@@ -64,6 +64,7 @@ ${JSON.stringify(diff, null, 2)}
 
 // paths: ${JSON.stringify(paths)}`} />
             )}
+            {expand}
         </div>
     )
 }

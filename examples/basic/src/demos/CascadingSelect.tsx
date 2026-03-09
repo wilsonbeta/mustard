@@ -9,7 +9,7 @@ const DATA: Record<string, string[]> = {
 
 const COUNTRIES = Object.keys(DATA)
 
-export function CascadingSelect({ mi = 0 }: { mi?: number }) {
+export function CascadingSelect({ mi = 0, expand }: { mi?: number, expand?: React.ReactNode }) {
     const state = useMustard({
         country: '',
         city: '',
@@ -72,6 +72,7 @@ state.city = ''  // auto-reset
 
 // Cities derived from state
 const cities = DATA[state.country] ?? []`} />
+            {expand}
         </div>
     )
 }

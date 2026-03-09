@@ -2,7 +2,7 @@ import { useMustard } from '@mustrd/react'
 import { useRef } from 'react'
 import { CodeBlock } from '../components/CodeBlock'
 
-export function Counter({ mi = 0 }: { mi?: number }) {
+export function Counter({ mi = 0, expand }: { mi?: number, expand?: React.ReactNode }) {
     const state = useMustard({ count: 0 })
     const renders = useRef(0)
     renders.current++
@@ -23,6 +23,7 @@ export function Counter({ mi = 0 }: { mi?: number }) {
             <CodeBlock code={`// Just assign directly
 state.count++
 state.count = 0`} />
+            {expand}
         </div>
     )
 }

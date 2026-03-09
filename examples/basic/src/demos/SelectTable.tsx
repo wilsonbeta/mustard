@@ -23,7 +23,7 @@ const STATUS_COLOR: Record<string, string> = {
     Offline: '#e74c3c',
 }
 
-export function SelectTable({ mi = 0 }: { mi?: number }) {
+export function SelectTable({ mi = 0, expand }: { mi?: number, expand?: React.ReactNode }) {
     const state = useMustard({ rows: INITIAL_DATA })
 
     const selectedCount = state.rows.filter((r: Row) => r.selected).length
@@ -112,6 +112,7 @@ state.rows.forEach(row => {
 // setState(prev => ({
 //     rows: prev.rows.map(r => ({ ...r, selected: checked }))
 // }))`} />
+            {expand}
         </div>
     )
 }

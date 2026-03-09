@@ -8,7 +8,7 @@ interface Todo {
     done: boolean;
 }
 
-export function TodoList({ mi = 0 }: { mi?: number }) {
+export function TodoList({ mi = 0, expand }: { mi?: number, expand?: React.ReactNode }) {
     const state = useMustard<{ todos: Todo[], nextId: number }>({
         todos: [
             { id: 1, text: 'Try Mustard', done: true },
@@ -65,6 +65,7 @@ export function TodoList({ mi = 0 }: { mi?: number }) {
 state.todos.push({ id: 3, text: 'New' })
 state.todos[0].done = true
 state.todos.splice(i, 1)`} />
+            {expand}
         </div>
     )
 }
