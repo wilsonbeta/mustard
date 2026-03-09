@@ -276,7 +276,7 @@ body {
     gap: 1.25rem;
 }
 
-@media (max-width: 800px) {
+@media (max-width: 900px) {
     .demo-grid { grid-template-columns: 1fr; }
 }
 
@@ -897,7 +897,7 @@ table input[type="checkbox"] {
     display: none;
 }
 
-@media (max-width: 768px) {
+@media (max-width: 900px) {
     .sidebar {
         display: none;
     }
