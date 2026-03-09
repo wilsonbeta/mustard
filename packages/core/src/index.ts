@@ -1,38 +1,9 @@
 /*
-    Mustard — Proxy-based state management for React
+    Mustard Core — Proxy-based state engine
 
-    - Direct assignment (no setter functions)
-    - Auto-tracking: only re-renders when accessed properties change
-    - Record: tracks changed fields for partial updates
-    - Undo: step-by-step state reversal
-    - Structural sharing: efficient immutable updates
-    - Zero dependencies (React only)
-
-    Usage:
-
-    // Inline store
-    const state = useMustard({ name: '', count: 0 });
-    state.name = 'foo';  // only re-renders components that read `name`
-
-    // External store (shared across components)
-    const store = createMustard({ name: '', count: 0 });
-    const state = useMustard(store);
-
-    // Record & Undo
-    record(state).data()   // { name: 'foo' } — only changed fields
-    record(state).undo()   // revert last change
-    record(state).clear()  // clear history (new baseline)
+    Pure JavaScript. No framework dependency.
+    Provides: createMustard, record, unwrap, squeeze
 */
-
-import {
-    useRef,
-    useEffect,
-    useSyncExternalStore,
-    createContext,
-    useContext,
-    createElement,
-    type ReactNode,
-} from "react";
 
 // ==================== Types ====================
 
@@ -70,9 +41,9 @@ export interface MustardStore<T = any> {
 
 // ==================== Constants ====================
 
-const MUTATORS = new Set(['push', 'pop', 'shift', 'unshift', 'splice', 'sort', 'reverse', 'fill', 'copyWithin']);
-const ITERATORS = new Set(['forEach', 'map', 'filter', 'find', 'findIndex', 'some', 'every', 'reduce', 'reduceRight', 'flatMap']);
-const INTERNAL_KEYS = new Set(['_MST_STORE_', '_MST_SOURCE_', '_MST_RECORD_', '$', 'reset']);
+export const MUTATORS = new Set(['push', 'pop', 'shift', 'unshift', 'splice', 'sort', 'reverse', 'fill', 'copyWithin']);
+export const ITERATORS = new Set(['forEach', 'map', 'filter', 'find', 'findIndex', 'some', 'every', 'reduce', 'reduceRight', 'flatMap']);
+export const INTERNAL_KEYS = new Set(['_MST_STORE_', '_MST_SOURCE_', '_MST_RECORD_', '$', 'reset']);
 
 // ==================== Utilities ====================
 
@@ -107,7 +78,7 @@ export const squeeze = (obj: any): any => {
 };
 
 /** Structural sharing: create new references along path */
-const setPathValue = (curr: any, path: any[], callback: Function, depth = 0): any => {
+export const setPathValue = (curr: any, path: any[], callback: Function, depth = 0): any => {
     if (depth === path.length) {
         const next = Array.isArray(curr) ? [...curr] : { ...curr };
         const result = callback(next);
@@ -120,7 +91,7 @@ const setPathValue = (curr: any, path: any[], callback: Function, depth = 0): an
 };
 
 /** Traverse state by path segments */
-const getAtPath = (state: any, path: string[]): any => {
+export const getAtPath = (state: any, path: string[]): any => {
     let current = state;
     for (let i = 0; i < path.length; i++) {
         if (current == null) return undefined;
@@ -130,7 +101,7 @@ const getAtPath = (state: any, path: string[]): any => {
 };
 
 /** Build nested object from flat record entries (aggregated) */
-const buildNested = (entries: RecordEntry[]): any => {
+export const buildNested = (entries: RecordEntry[]): any => {
     const result: LooseObject = {};
     for (const entry of entries) {
         const segs = entry.path.split('.');
@@ -190,7 +161,6 @@ export const createMustard = <T extends object>(initialState: T): MustardStore<T
     // Record API
     const recordApi: RecordApi = {
         data: () => {
-            // Same path: keep first `before`, latest `after`
             const latest = new Map<string, RecordEntry>();
             for (const entry of history) {
                 const existing = latest.get(entry.path);
@@ -215,7 +185,7 @@ export const createMustard = <T extends object>(initialState: T): MustardStore<T
             notify();
         },
         undoTo: (index: number) => {
-            if (index >= history.length) return;
+            if (index < 0 || index >= history.length) return;
             while (history.length > index) applyUndo(history.pop()!);
             notify();
         },
@@ -236,7 +206,6 @@ export const createMustard = <T extends object>(initialState: T): MustardStore<T
 
         const proxy = new Proxy(target, {
             get: (_, key) => {
-                // Symbol (iterator, toPrimitive, etc.)
                 if (typeof key === 'symbol') {
                     const curr = getCurrent();
                     if (curr == null) return undefined;
@@ -244,13 +213,11 @@ export const createMustard = <T extends object>(initialState: T): MustardStore<T
                     return typeof val === 'function' ? val.bind(curr) : val;
                 }
 
-                // Internal properties
                 if (key === '_MST_STORE_') return store;
                 if (key === '_MST_SOURCE_') return getCurrent();
                 if (key === '_MST_RECORD_') return recordApi;
                 if (key === '$') return getCurrent();
 
-                // reset: replace entire state
                 if (key === 'reset') return (data: any) => {
                     state = typeof data === 'function' ? squeeze(data()) : squeeze(data);
                     notify();
@@ -260,7 +227,6 @@ export const createMustard = <T extends object>(initialState: T): MustardStore<T
                 if (curr == null) return undefined;
                 const value = curr[key];
 
-                // Mutating array methods
                 if (Array.isArray(curr) && typeof value === 'function' && MUTATORS.has(key)) {
                     return (...args: any[]) => {
                         const cleanArgs = args.map(a => typeof a === 'object' && a !== null ? squeeze(a) : a);
@@ -285,7 +251,6 @@ export const createMustard = <T extends object>(initialState: T): MustardStore<T
                     };
                 }
 
-                // Iterator methods: bind to proxy so callback items are proxied
                 if (Array.isArray(curr) && typeof value === 'function' && ITERATORS.has(key)) {
                     return value.bind(proxy);
                 }
@@ -372,143 +337,4 @@ export const createMustard = <T extends object>(initialState: T): MustardStore<T
     };
 
     return store;
-};
-
-
-// ==================== Hook ====================
-
-export const useMustard = <T extends object>(input: T | MustardStore<T>): T => {
-    const storeRef = useRef<MustardStore | null>(null);
-
-    let store: MustardStore;
-
-    if (input && typeof (input as any).subscribe === 'function') {
-        store = input as MustardStore;
-    } else {
-        if (storeRef.current === null) {
-            storeRef.current = createMustard(input as T);
-        }
-        store = storeRef.current;
-    }
-
-    // Auto-tracking: track paths read during render, only re-render when they change
-    const tracked = useRef<Map<string, any>>(new Map());
-    const pending = useRef<Map<string, any>>(new Map());
-    const stableVer = useRef(-1);
-
-    // Reset tracked paths each render
-    pending.current = new Map();
-
-    useSyncExternalStore(
-        store.subscribe,
-        () => {
-            // First render: no tracked paths, always re-render on change
-            if (tracked.current.size === 0) return store.getVersion();
-
-            // Compare tracked paths against current state
-            const state = store.getState();
-            for (const [pathKey, prevRef] of tracked.current) {
-                let curr: any = state;
-                const segs = pathKey.split('\0');
-                for (let i = 0; i < segs.length; i++) {
-                    if (curr == null) { curr = undefined; break; }
-                    curr = curr[segs[i]];
-                }
-                if (curr !== prevRef) return store.getVersion();
-            }
-            // All tracked values unchanged — stable, skip re-render
-            return stableVer.current;
-        },
-        () => store.getVersion()
-    );
-
-    // After render: snapshot tracked paths for next comparison
-    useEffect(() => {
-        if (pending.current.size > 0) tracked.current = pending.current;
-        stableVer.current = store.getVersion();
-    });
-
-    // Per-component auto-tracking proxy
-    const proxyRef = useRef<any>(null);
-    const cacheRef = useRef(new Map<string, any>());
-    const prevStoreRef = useRef<any>(null);
-    if (!proxyRef.current || store !== prevStoreRef.current) {
-        cacheRef.current = new Map();
-        proxyRef.current = createAutoProxy(store.proxy, pending, [], cacheRef.current);
-        prevStoreRef.current = store;
-    }
-
-    return proxyRef.current;
-};
-
-
-// ==================== Global State ====================
-
-const Context = createContext<any>(null);
-
-export const MustardProvider = ({ children, store }: { children: ReactNode; store: any }) =>
-    createElement(Context.Provider, { value: store }, children);
-
-/** Get all stores from context (no subscription) */
-export const useStores = () => useContext(Context);
-
-/** Get a single store from context (with auto-tracking) */
-export const useStore = (key: string | ((stores: any) => any)) => {
-    const stores: any = useContext(Context);
-    const store = typeof key === 'function' ? key(stores) : stores[key];
-    return useMustard(store);
-};
-
-
-// ==================== Auto-Tracking Proxy ====================
-
-const createAutoProxy = (
-    source: any,
-    pending: { current: Map<string, any> },
-    path: string[],
-    cache: Map<string, any>,
-): any => {
-    const pathKey = path.join('\0');
-    let proxy = cache.get(pathKey);
-    if (proxy) return proxy;
-
-    proxy = new Proxy(source, {
-        get(_, key) {
-            // Symbol and internal keys: forward without tracking
-            if (typeof key === 'symbol' || INTERNAL_KEYS.has(key as string)) return source[key];
-
-            const value = source[key];
-            if (typeof value === 'function' || value == null) return value;
-
-            const childPath = [...path, key as string];
-            const childKey = childPath.join('\0');
-
-            if (typeof value === 'object') {
-                // Track object reference (structural sharing ensures changed objects have new refs)
-                pending.current.set(childKey, value._MST_SOURCE_);
-                return createAutoProxy(value, pending, childPath, cache);
-            }
-
-            // Track primitive value
-            pending.current.set(childKey, value);
-            return value;
-        },
-        set(_, key, val) { source[key] = val; return true; },
-        deleteProperty(_, key: string) { delete source[key]; return true; },
-        ownKeys() { return Reflect.ownKeys(source); },
-        getOwnPropertyDescriptor(_, key) {
-            const raw = source.$;
-            if (raw != null && key in raw) {
-                if (key === 'length' && Array.isArray(raw)) {
-                    return { configurable: false, enumerable: false, writable: true, value: raw.length };
-                }
-                return { configurable: true, enumerable: true, writable: true, value: raw[key] };
-            }
-            return undefined;
-        },
-        has(_, key) { return key in source; },
-    });
-
-    cache.set(pathKey, proxy);
-    return proxy;
 };
