@@ -898,11 +898,14 @@ table input[type="checkbox"] {
 }
 
 @media (max-width: 900px) {
+    .app-layout {
+        flex-direction: column;
+    }
     .sidebar {
         display: none;
     }
     .main-content {
-        padding-bottom: 4.5rem;
+        padding-bottom: 0;
     }
     .page-container {
         padding: 1.5rem 0.75rem;
