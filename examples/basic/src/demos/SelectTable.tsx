@@ -37,7 +37,7 @@ export function SelectTable({ mi = 0, expand }: { mi?: number, expand?: React.Re
 
     const deleteSelected = () => {
         const remaining = state.rows.filter((r: Row) => !r.selected)
-        state.reset({ rows: remaining })
+        ;(state as any).reset({ rows: remaining })
     }
 
     return (
