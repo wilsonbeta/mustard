@@ -546,3 +546,25 @@ describe('edge cases', () => {
         expect(store.getState().count).toBe(5);
     });
 });
+
+// ==================== buildNested with arrays ====================
+
+describe('buildNested with array paths', () => {
+    it('record.data() builds arrays for numeric-keyed paths', () => {
+        const store = createMustard({ items: [{ name: 'a' }, { name: 'b' }] });
+        store.proxy.items[1].name = 'changed';
+        const data = record(store.proxy).data();
+        expect(Array.isArray(data.items)).toBe(true);
+        expect(data.items[1]).toEqual({ name: 'changed' });
+    });
+
+    it('record.data() handles mixed nested array and object paths', () => {
+        const store = createMustard({
+            users: [{ name: 'a', addr: { city: 'Taipei' } }],
+        });
+        store.proxy.users[0].addr.city = 'Tokyo';
+        const data = record(store.proxy).data();
+        expect(Array.isArray(data.users)).toBe(true);
+        expect(data.users[0].addr.city).toBe('Tokyo');
+    });
+});

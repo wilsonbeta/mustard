@@ -172,7 +172,7 @@ export const createForm = <T extends object>(data: T, rules?: RuleMap) => {
         getOwnPropertyDescriptor(_, key: string | symbol) {
             const state = store.getState();
             if (typeof key === 'string' && key in state) {
-                return { configurable: true, enumerable: true, writable: true, value: (state as any)[key] };
+                return { configurable: true, enumerable: true, writable: true, value: store.proxy[key] };
             }
             return undefined;
         },
@@ -183,8 +183,14 @@ export const createForm = <T extends object>(data: T, rules?: RuleMap) => {
 
     // ==================== Errors Mirror Proxy ====================
 
+    const errorsCache = new Map<string, any>();
+
     const createErrorsProxy = (basePath: string[] = []): any => {
-        return new Proxy({} as any, {
+        const cacheKey = basePath.join('\0');
+        let cached = errorsCache.get(cacheKey);
+        if (cached) return cached;
+
+        cached = new Proxy({} as any, {
             get(_, key: string | symbol) {
                 if (typeof key === 'symbol') return undefined;
 
@@ -211,12 +217,21 @@ export const createForm = <T extends object>(data: T, rules?: RuleMap) => {
                 return getErrors().map.get(pathStr) ?? null;
             },
         });
+
+        errorsCache.set(cacheKey, cached);
+        return cached;
     };
 
     // ==================== Edited Mirror Proxy ====================
 
+    const editedCache = new Map<string, any>();
+
     const createEditedProxy = (basePath: string[] = []): any => {
-        return new Proxy({} as any, {
+        const cacheKey = basePath.join('\0');
+        let cached = editedCache.get(cacheKey);
+        if (cached) return cached;
+
+        cached = new Proxy({} as any, {
             get(_, key: string | symbol) {
                 if (typeof key === 'symbol') return undefined;
 
@@ -234,6 +249,9 @@ export const createForm = <T extends object>(data: T, rules?: RuleMap) => {
                 return paths.some(p => p === pathStr || p.startsWith(pathStr + '.'));
             },
         });
+
+        editedCache.set(cacheKey, cached);
+        return cached;
     };
 
     // ==================== Return Tuple ====================

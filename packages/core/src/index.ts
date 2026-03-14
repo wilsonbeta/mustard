@@ -107,7 +107,10 @@ export const buildNested = (entries: RecordEntry[]): any => {
         const segs = entry.path.split('.');
         let current = result;
         for (let i = 0; i < segs.length - 1; i++) {
-            if (current[segs[i]] == null) current[segs[i]] = {};
+            const nextSeg = segs[i + 1];
+            if (current[segs[i]] == null) {
+                current[segs[i]] = /^\d+$/.test(nextSeg) ? [] : {};
+            }
             current = current[segs[i]];
         }
         current[segs[segs.length - 1]] = entry.after;

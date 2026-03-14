@@ -419,3 +419,51 @@ describe('cross-field validation', () => {
         expect(errors.confirm).toBeNull();
     });
 });
+
+// ==================== $dirty with nested/array changes ====================
+
+describe('$dirty nested', () => {
+    it('returns nested diff for object changes', () => {
+        const [form] = createForm({ addr: { city: 'Taipei', zip: '123' } });
+        form.addr.city = 'Tokyo';
+        expect(form.$dirty()).toEqual({ addr: { city: 'Tokyo' } });
+    });
+
+    it('returns array diff for array item changes', () => {
+        const [form] = createForm({ friends: [{ name: 'John' }, { name: 'Jane' }] });
+        form.friends[1].name = 'Bob';
+        const dirty = form.$dirty();
+        expect(Array.isArray(dirty.friends)).toBe(true);
+        expect(dirty.friends[1]).toEqual({ name: 'Bob' });
+    });
+});
+
+// ==================== $reset then modify again ====================
+
+describe('$reset then modify', () => {
+    it('tracks new changes after reset', () => {
+        const [form, , edited] = createForm({ name: 'Wilson', email: '' });
+        form.name = 'Bob';
+        form.$reset();
+        expect(form.$isDirty()).toBe(false);
+        expect(edited.name).toBe(false);
+
+        form.email = 'w@example.com';
+        expect(form.$isDirty()).toBe(true);
+        expect(edited.email).toBe(true);
+        expect(edited.name).toBe(false);
+        expect(form.$dirty()).toEqual({ email: 'w@example.com' });
+    });
+});
+
+// ==================== Edited without rules ====================
+
+describe('edited without rules', () => {
+    it('tracks edits even when no rules are provided', () => {
+        const [form, , edited] = createForm({ name: '', role: '' });
+        expect(edited.name).toBe(false);
+        form.name = 'Wilson';
+        expect(edited.name).toBe(true);
+        expect(edited.role).toBe(false);
+    });
+});
