@@ -19,11 +19,12 @@ import {
 import {
     createMustard,
     INTERNAL_KEYS,
+    MST_SOURCE,
     type MustardStore,
 } from "@mustrd/core";
 
 // Re-export everything from core
-export { createMustard, record, unwrap, squeeze } from "@mustrd/core";
+export { createMustard, record, unwrap, squeeze, MST_STORE, MST_SOURCE, MST_RECORD } from "@mustrd/core";
 export type { RecordApi, MustardStore } from "@mustrd/core";
 
 
@@ -50,7 +51,7 @@ const createAutoProxy = (
             const childKey = childPath.join('\0');
 
             if (typeof value === 'object') {
-                pending.current.set(childKey, value._MST_SOURCE_);
+                pending.current.set(childKey, value[MST_SOURCE]);
                 return createAutoProxy(value, pending, childPath, cache);
             }
 
@@ -140,15 +141,23 @@ export const useMustard = <T extends object>(input: T | MustardStore<T>): T => {
 
 // ==================== Global State ====================
 
-const Context = createContext<any>(null);
+const Context = createContext<Record<string, MustardStore> | null>(null);
 
-export const MustardProvider = ({ children, store }: { children: ReactNode; store: any }) =>
+/** Provide multiple stores to the component tree. Use `useStore` or `useStores` to access them. */
+export const MustardProvider = <T extends Record<string, MustardStore>>({
+    children, store,
+}: { children: ReactNode; store: T }) =>
     createElement(Context.Provider, { value: store }, children);
 
-export const useStores = () => useContext(Context);
+/** Access all stores from the nearest MustardProvider. Cast the return type for full type safety. */
+export const useStores = <T extends Record<string, MustardStore> = Record<string, MustardStore>>(): T =>
+    useContext(Context) as T;
 
-export const useStore = (key: string | ((stores: any) => any)) => {
-    const stores: any = useContext(Context);
+/** Access a single store by key or selector function, with auto-tracking. */
+export const useStore = <T extends object = any>(
+    key: string | ((stores: Record<string, MustardStore>) => MustardStore<T>),
+): T => {
+    const stores = useContext(Context)!;
     const store = typeof key === 'function' ? key(stores) : stores[key];
     return useMustard(store);
 };

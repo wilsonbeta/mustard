@@ -17,14 +17,19 @@
   "scripts": {
     "build": "tsup",
     "dev": "tsup --watch",
-    "test": "echo \"no tests yet\""
+    "test": "vitest run"
   },
   "dependencies": {
     "@mustrd/core": "workspace:*"
   },
   "devDependencies": {
+    "@testing-library/jest-dom": "^6.9.1",
+    "@testing-library/react": "^16.3.2",
     "@types/react": "^18.0.0",
+    "@types/react-dom": "^18.3.7",
+    "jsdom": "^29.0.0",
     "react": "^18.0.0",
+    "react-dom": "^18.3.1",
     "tsup": "^8.0.0",
     "typescript": "^5.0.0",
     "vitest": "^4.0.18"

@@ -36,28 +36,38 @@ export interface MustardStore<T = any> {
     getState: () => T;
     getVersion: () => number;
     subscribe: (listener: () => void) => () => void;
+    /**
+     * Reactive proxy. Reads/writes trigger notifications.
+     * Reserved string properties: `$` (snapshot), `reset(data)` (replace state).
+     * For type-safe access, use `useMustard(store)` which returns `T`.
+     */
     proxy: any;
 }
 
 // ==================== Constants ====================
 
+export const MST_STORE = Symbol.for('mustard.store');
+export const MST_SOURCE = Symbol.for('mustard.source');
+export const MST_RECORD = Symbol.for('mustard.record');
+
 export const MUTATORS = new Set(['push', 'pop', 'shift', 'unshift', 'splice', 'sort', 'reverse', 'fill', 'copyWithin']);
 export const ITERATORS = new Set(['forEach', 'map', 'filter', 'find', 'findIndex', 'some', 'every', 'reduce', 'reduceRight', 'flatMap']);
-export const INTERNAL_KEYS = new Set(['_MST_STORE_', '_MST_SOURCE_', '_MST_RECORD_', '$', 'reset']);
+/** Reserved string keys on the proxy: `$` returns snapshot, `reset` returns reset function */
+export const INTERNAL_KEYS = new Set(['$', 'reset']);
 
 // ==================== Utilities ====================
 
 /** Unwrap proxy to get raw value */
 export const unwrap = (obj: any): any => {
     if (obj != null && typeof obj === 'object') {
-        const source = obj._MST_SOURCE_;
+        const source = obj[MST_SOURCE];
         if (source !== undefined) return source;
     }
     return obj;
 };
 
 /** Get record API from a mustard proxy */
-export const record = (obj: any): RecordApi => obj._MST_RECORD_;
+export const record = (obj: any): RecordApi => obj[MST_RECORD];
 
 /** Deep clone (strips proxy references) */
 export const squeeze = (obj: any): any => {
@@ -209,16 +219,17 @@ export const createMustard = <T extends object>(initialState: T): MustardStore<T
 
         const proxy = new Proxy(target, {
             get: (_, key) => {
+                // Symbol keys: internal Mustard symbols + user symbols
                 if (typeof key === 'symbol') {
+                    if (key === MST_STORE) return store;
+                    if (key === MST_SOURCE) return getCurrent();
+                    if (key === MST_RECORD) return recordApi;
                     const curr = getCurrent();
                     if (curr == null) return undefined;
                     const val = curr[key];
                     return typeof val === 'function' ? val.bind(curr) : val;
                 }
 
-                if (key === '_MST_STORE_') return store;
-                if (key === '_MST_SOURCE_') return getCurrent();
-                if (key === '_MST_RECORD_') return recordApi;
                 if (key === '$') return getCurrent();
 
                 if (key === 'reset') return (data: any) => {

@@ -213,6 +213,15 @@ const snapshot = state.$;
 | Zero dependencies | Yes | No | Yes |
 | Bundle size | ~4 KB | ~6 KB | ~3 KB |
 
+## Reserved Properties
+
+The proxy reserves two string properties for internal use:
+
+- **`$`** — returns the current raw state snapshot
+- **`reset`** — returns a function to replace the entire state
+
+Avoid using `$` or `reset` as keys in your state object. All other internal keys use Symbols, so there are no further naming restrictions.
+
 ## How It Works
 
 Mustard uses two layers of proxy:

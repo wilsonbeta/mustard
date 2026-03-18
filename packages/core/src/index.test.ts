@@ -1,5 +1,5 @@
 import { describe, it, expect, vi } from 'vitest';
-import { createMustard, record, unwrap, squeeze } from './index';
+import { createMustard, record, unwrap, squeeze, MST_STORE, MST_SOURCE, MST_RECORD } from './index';
 
 // ==================== squeeze ====================
 
@@ -544,6 +544,43 @@ describe('edge cases', () => {
         record(p).clear();
         record(p).undo(); // no-op
         expect(store.getState().count).toBe(5);
+    });
+});
+
+// ==================== Symbol-based internal keys ====================
+
+describe('Symbol-based internal keys', () => {
+    it('MST_STORE returns the store object via Symbol', () => {
+        const store = createMustard({ count: 0 });
+        expect((store.proxy as any)[MST_STORE]).toBe(store);
+    });
+
+    it('MST_SOURCE returns raw state via Symbol', () => {
+        const store = createMustard({ count: 0 });
+        expect((store.proxy as any)[MST_SOURCE]).toBe(store.getState());
+    });
+
+    it('MST_RECORD returns record API via Symbol', () => {
+        const store = createMustard({ count: 0 });
+        expect((store.proxy as any)[MST_RECORD]).toBe(record(store.proxy));
+    });
+
+    it('user can use former internal key names as state properties', () => {
+        const store = createMustard({
+            _MST_STORE_: 'my value',
+            _MST_SOURCE_: 42,
+            _MST_RECORD_: [1, 2, 3],
+        });
+        const p = store.proxy;
+        expect(p._MST_STORE_).toBe('my value');
+        expect(p._MST_SOURCE_).toBe(42);
+        expect(p._MST_RECORD_).toEqual([1, 2, 3]);
+    });
+
+    it('writing to former internal key names works normally', () => {
+        const store = createMustard<any>({ _MST_STORE_: 'old' });
+        store.proxy._MST_STORE_ = 'new';
+        expect(store.getState()._MST_STORE_).toBe('new');
     });
 });
 
