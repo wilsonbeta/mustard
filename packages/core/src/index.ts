@@ -227,6 +227,7 @@ export const createMustard = <T extends object>(initialState: T): MustardStore<T
 
                 if (key === 'reset') return (data: any) => {
                     state = typeof data === 'function' ? squeeze(data()) : squeeze(data);
+                    proxyCache.clear();
                     notify();
                 };
 
@@ -252,6 +253,12 @@ export const createMustard = <T extends object>(initialState: T): MustardStore<T
                             before: beforeArr,
                             after: afterArr,
                         });
+
+                        // Clear child proxy cache — array structure changed
+                        const prefix = path.join('\0');
+                        for (const k of proxyCache.keys()) {
+                            if (k.startsWith(prefix + '\0')) proxyCache.delete(k);
+                        }
 
                         notify();
                         return result;
@@ -317,6 +324,11 @@ export const createMustard = <T extends object>(initialState: T): MustardStore<T
                 state = setPathValue(state, path, (parent: any) => {
                     delete parent[key];
                 });
+
+                const prefix = path.length === 0 ? key : path.join('\0') + '\0' + key;
+                for (const k of proxyCache.keys()) {
+                    if (k === prefix || k.startsWith(prefix + '\0')) proxyCache.delete(k);
+                }
 
                 pushRecord(path, key, before, undefined);
                 notify();
