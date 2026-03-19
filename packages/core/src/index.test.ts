@@ -453,20 +453,17 @@ describe('array iterators', () => {
 
 // ==================== Subscribe & batch ====================
 
-describe('subscribe & batch notification', () => {
-    it('notifies listeners via microtask', async () => {
+describe('subscribe & synchronous notification', () => {
+    it('notifies listeners synchronously on write', () => {
         const store = createMustard({ count: 0 });
         const fn = vi.fn();
         store.subscribe(fn);
 
         store.proxy.count = 1;
-        expect(fn).not.toHaveBeenCalled(); // not yet — microtask pending
-
-        await Promise.resolve(); // flush microtask
         expect(fn).toHaveBeenCalledTimes(1);
     });
 
-    it('batches multiple synchronous writes into one notification', async () => {
+    it('notifies once per write', () => {
         const store = createMustard({ a: 0, b: 0, c: 0 });
         const fn = vi.fn();
         store.subscribe(fn);
@@ -475,19 +472,16 @@ describe('subscribe & batch notification', () => {
         store.proxy.b = 2;
         store.proxy.c = 3;
 
-        await Promise.resolve();
-        expect(fn).toHaveBeenCalledTimes(1);
+        expect(fn).toHaveBeenCalledTimes(3);
     });
 
-    it('unsubscribe stops notifications', async () => {
+    it('unsubscribe stops notifications', () => {
         const store = createMustard({ count: 0 });
         const fn = vi.fn();
         const unsub = store.subscribe(fn);
-
-        store.proxy.count = 1;
         unsub();
 
-        await Promise.resolve();
+        store.proxy.count = 1;
         expect(fn).not.toHaveBeenCalled();
     });
 });

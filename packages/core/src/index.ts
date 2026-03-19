@@ -136,17 +136,10 @@ export const createMustard = <T extends object>(initialState: T): MustardStore<T
     let version = 0;
     const listeners = new Set<() => void>();
     let history: RecordEntry[] = [];
-    let pendingNotify = false;
-
+    // Synchronous notification — React 18 automatic batching handles coalescing
     const notify = () => {
         version++;
-        if (!pendingNotify) {
-            pendingNotify = true;
-            Promise.resolve().then(() => {
-                pendingNotify = false;
-                listeners.forEach(l => l());
-            });
-        }
+        listeners.forEach(l => l());
     };
 
     const pushRecord = (path: string[], key: string, before: any, after: any) => {
