@@ -1,6 +1,6 @@
 {
   "name": "@mustrd/react",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "description": "Proxy-based state management for React — direct assignment, auto-tracking, record diff, undo",
   "type": "module",
   "main": "./dist/index.cjs",
