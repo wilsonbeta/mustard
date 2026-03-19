@@ -1,6 +1,6 @@
 {
   "name": "@mustrd/core",
-  "version": "0.3.0",
+  "version": "0.3.1",
   "description": "Proxy-based state engine — direct assignment, diff tracking, undo. Zero dependencies.",
   "type": "module",
   "main": "./dist/index.cjs",
